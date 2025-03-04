@@ -7,6 +7,7 @@ import (
 )
 
 func AddRoute(router *gin.Engine, path, pathToSpec, title string) {
+	router.StaticFile(path, pathToSpec)
 	router.GET(path, gin.WrapH(v5emb.NewHandlerWithConfig(swgui.Config{
 		Title:            title,
 		SwaggerJSON:      pathToSpec,
