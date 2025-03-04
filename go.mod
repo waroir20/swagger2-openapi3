@@ -1,4 +1,4 @@
-module swagger2-openapi3
+module github.com/waroir20/swagger2-openapi3
 
 go 1.24.0
 
