@@ -1,4 +1,4 @@
-package main
+package swagger2openapi3
 
 import (
 	"github.com/gin-gonic/gin"

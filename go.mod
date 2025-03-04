@@ -1,4 +1,4 @@
-module ryker.io/swag2openapi3
+module swagger2-openapi3
 
 go 1.24.0
 
