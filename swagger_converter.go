@@ -8,7 +8,24 @@ import (
 	"strings"
 )
 
-func ConvertSwaggerSpec2OpenAPI3dot0(fileIn, fileOut string) {
+type fallbackSpecs struct {
+	fallbackBasePath string
+}
+
+type Option = func(s *fallbackSpecs)
+
+func WithFallbackBasePath(basePath string) Option {
+	return func(s *fallbackSpecs) {
+		s.fallbackBasePath = basePath
+	}
+}
+
+func ConvertSwaggerSpec2OpenAPI3dot0(fileIn, fileOut string, opts ...Option) {
+	var spec fallbackSpecs
+	for _, o := range opts {
+		o(&spec)
+	}
+
 	file, err := os.ReadFile(fileIn)
 	if err != nil {
 		fmt.Printf("Error read from file: '%s'\n", fileIn)
@@ -39,8 +56,22 @@ func ConvertSwaggerSpec2OpenAPI3dot0(fileIn, fileOut string) {
 	delete(rawJSONMap, "definitions")
 	delete(rawJSONMap, "securityDefinitions")
 	delete(rawJSONMap, "host")
+	basePathI, ok := rawJSONMap["basePath"]
+	basePathDesc := "Generated Server URI"
+	if !ok {
+		basePathI = spec.fallbackBasePath
+		basePathDesc = "default"
+	}
 	delete(rawJSONMap, "basePath")
-	// rawJSONMap["servers"] = rawJSONMapRef["servers"]
+	_, ok = rawJSONMap["servers"]
+	if !ok {
+		rawJSONMap["servers"] = []map[string]interface{}{
+			{
+				"url":         basePathI,
+				"description": basePathDesc,
+			},
+		}
+	}
 
 	if paths, ok := rawJSONMap["paths"]; ok {
 		jsonMap := paths.(map[string]interface{})
